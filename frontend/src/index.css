@@ -1,111 +1,261 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+/* ============================================================
+   DESIGN TOKENS — Retro-Futuristic Editorial
+   Game Vault — Game Recommendation System
+   ============================================================ */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  /* --- Backgrounds --- */
+  --color-bg-deep:     #0F1923;
+  --color-bg-surface:  #162232;
+  --color-bg-elevated: #1E2F42;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+  /* --- Accents --- */
+  --color-accent-coral: #FF6B4A;
+  --color-accent-amber: #FFB830;
+  --color-accent-sky:   #38BDF8;
+
+  /* --- Status --- */
+  --color-status-success: #4ADE80;
+  --color-status-error:   #F87171;
+
+  /* --- Text --- */
+  --color-text-primary:   #F0EDE6;
+  --color-text-secondary: #8B9DB5;
+  --color-text-dim:       #4A6180;
+
+  /* --- Borders --- */
+  --color-border-default:      #253549;
+  --color-border-accent-coral: #FF6B4A;
+  --color-border-accent-amber: #FFB830;
+
+  /* --- Fonts --- */
+  --font-display: 'Anybody', system-ui, sans-serif;
+  --font-body:    'Be Vietnam Pro', system-ui, sans-serif;
+
+  /* --- Animations --- */
+  --animate-fade-up:      fade-up 0.5s ease both;
+  --animate-bounce-once:  bounce-once 0.4s ease;
+  --animate-pulse-border: pulse-border 2s ease-in-out infinite;
+  --animate-spin-slow:    spin 3s linear infinite;
+  --animate-glow-pulse:   glow-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+@keyframes bounce-once {
+  0%, 100% { transform: scale(1); }
+  40%       { transform: scale(1.35); }
+  70%       { transform: scale(0.88); }
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--color-border-default); }
+  50%       { border-color: var(--color-accent-coral); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 107, 74, 0.2), inset 0 0 2px rgba(255, 107, 74, 0.1);
   }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 107, 74, 0.4), inset 0 0 5px rgba(255, 107, 74, 0.2);
+  }
+}
+
+/* ============================================================
+   ANIMATION DELAY UTILITIES
+   ============================================================ */
+.animate-delay-1 { animation-delay: 100ms; }
+.animate-delay-2 { animation-delay: 200ms; }
+.animate-delay-3 { animation-delay: 300ms; }
+.animate-delay-4 { animation-delay: 400ms; }
+.animate-delay-5 { animation-delay: 500ms; }
+.animate-delay-6 { animation-delay: 600ms; }
+.animate-delay-7 { animation-delay: 700ms; }
+
+/* ============================================================
+   GLOBAL RESET & BASE
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg-deep);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Noise overlay — printed paper feel */
+  position: relative;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* ============================================================
+   PREMIUM CUSTOM UTILITY CLASSES
+   ============================================================ */
+
+/* 1. Cyber Grid background */
+.bg-grid-pattern {
+  background-size: 28px 28px;
+  background-image: 
+    linear-gradient(to right, rgba(74, 97, 128, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(74, 97, 128, 0.07) 1px, transparent 1px);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+/* 2. Scanline filter animation */
+.scanline-overlay {
+  position: relative;
+  overflow: hidden;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+.scanline-overlay::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2;
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* 3. Text Outlined Stroke (Editorial Ranks) */
+.text-stroke-coral {
+  -webkit-text-stroke: 1.5px var(--color-accent-coral);
+  color: transparent;
+}
+.text-stroke-amber {
+  -webkit-text-stroke: 1.5px var(--color-accent-amber);
+  color: transparent;
+}
+.text-stroke-dim {
+  -webkit-text-stroke: 1px rgba(74, 97, 128, 0.3);
+  color: transparent;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* 4. Glassmorphism */
+.glass-panel {
+  background: rgba(22, 34, 50, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px border-default;
+}
+
+/* 5. Custom glows */
+.neon-glow-coral {
+  box-shadow: 0 0 20px rgba(255, 107, 74, 0.25);
+}
+.neon-glow-amber {
+  box-shadow: 0 0 20px rgba(255, 184, 48, 0.25);
+}
+
+/* ============================================================
+   LINK UNDERLINE UTILITY
+   ============================================================ */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: var(--color-accent-coral);
+  transition: width 0.3s ease;
+}
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* ============================================================
+   CUSTOM SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-coral);
+}
+
+/* ============================================================
+   HORIZONTAL SCROLL — hide scrollbar but keep functionality
+   ============================================================ */
+.scroll-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================
+   RANGE INPUT STYLING
+   ============================================================ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+input[type="range"]::-webkit-slider-track {
+  background: var(--color-border-default);
+  height: 2px;
+  border-radius: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--color-accent-coral);
+  height: 14px;
+  width: 14px;
+  border-radius: 0;
+  margin-top: -6px;
 }
