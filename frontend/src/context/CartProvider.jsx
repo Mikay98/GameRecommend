@@ -1,144 +1,123 @@
-// CartProvider.jsx — global app and cart state provider
+import { useState } from 'react';
+import { CartContext } from './CartContext';
+import { gameApi } from '../services/api';
 
-import { useState, useCallback, useEffect } from 'react';
-import { CartContext } from './CartContext.js';
-import {
-  INITIAL_PURCHASED_GAME_IDS,
-  INITIAL_VIEWED_GAME_IDS,
-  INITIAL_PURCHASE_HISTORY,
-  INITIAL_VIEW_HISTORY,
-} from '../data/mockData';
+const PURCHASED_KEY = 'gamestore_purchased';
+const EXCLUDED_KEY = 'gamestore_profile_excluded';
 
-export function CartProvider({ children }) {
-  // --- Cart items state ---
-  const [items, setItems] = useState(() => {
-    const stored = localStorage.getItem('gv_cart');
-    return stored ? JSON.parse(stored) : [];
-  });
+function loadPurchased() {
+  try {
+    const raw = localStorage.getItem(PURCHASED_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
 
-  // --- Purchased & Viewed state ---
-  const [purchasedGameIds, setPurchasedGameIds] = useState(() => {
-    const stored = localStorage.getItem('gv_purchased_ids');
-    return stored ? JSON.parse(stored) : INITIAL_PURCHASED_GAME_IDS;
-  });
+function savePurchased(games) {
+  try {
+    localStorage.setItem(PURCHASED_KEY, JSON.stringify(games));
+  } catch {
+    // ignore storage errors
+  }
+}
 
-  const [viewedGameIds, setViewedGameIds] = useState(() => {
-    const stored = localStorage.getItem('gv_viewed_ids');
-    return stored ? JSON.parse(stored) : INITIAL_VIEWED_GAME_IDS;
-  });
+function loadExcluded() {
+  try {
+    const raw = localStorage.getItem(EXCLUDED_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
 
-  const [purchaseHistory, setPurchaseHistory] = useState(() => {
-    const stored = localStorage.getItem('gv_purchase_history');
-    return stored ? JSON.parse(stored) : INITIAL_PURCHASE_HISTORY;
-  });
+function saveExcluded(set) {
+  try {
+    localStorage.setItem(EXCLUDED_KEY, JSON.stringify([...set]));
+  } catch {
+    // ignore storage errors
+  }
+}
 
-  const [viewHistory, setViewHistory] = useState(() => {
-    const stored = localStorage.getItem('gv_view_history');
-    return stored ? JSON.parse(stored) : INITIAL_VIEW_HISTORY;
-  });
+export const CartProvider = ({ children }) => {
+  const [cartItems, setCartItems] = useState([]);
+  const [purchasedGames, setPurchasedGames] = useState(loadPurchased);
+  const [profileExcluded, setProfileExcluded] = useState(loadExcluded);
 
-  // --- Sync state to LocalStorage ---
-  useEffect(() => {
-    localStorage.setItem('gv_cart', JSON.stringify(items));
-  }, [items]);
-
-  useEffect(() => {
-    localStorage.setItem('gv_purchased_ids', JSON.stringify(purchasedGameIds));
-  }, [purchasedGameIds]);
-
-  useEffect(() => {
-    localStorage.setItem('gv_viewed_ids', JSON.stringify(viewedGameIds));
-  }, [viewedGameIds]);
-
-  useEffect(() => {
-    localStorage.setItem('gv_purchase_history', JSON.stringify(purchaseHistory));
-  }, [purchaseHistory]);
-
-  useEffect(() => {
-    localStorage.setItem('gv_view_history', JSON.stringify(viewHistory));
-  }, [viewHistory]);
-
-  // --- Cart operations ---
-  const addToCart = useCallback((game) => {
-    setItems(prev => {
-      if (prev.find(i => i.id === game.id)) return prev;
-      return [...prev, { ...game, qty: 1 }];
+  const addToCart = (game) => {
+    setCartItems((prev) => {
+      const exist = prev.find((item) => item.id === game.id);
+      if (exist) return prev;
+      return [...prev, { ...game, quantity: 1 }];
     });
-  }, []);
+  };
 
-  const removeFromCart = useCallback((gameId) => {
-    setItems(prev => prev.filter(i => i.id !== gameId));
-  }, []);
+  const removeFromCart = (id) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  };
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = () => setCartItems([]);
 
-  const isInCart = useCallback((gameId) => items.some(i => i.id === gameId), [items]);
-
-  // --- Viewed history operations ---
-  const addViewedGame = useCallback((gameId) => {
-    // 1. Update viewed IDs list (unique, move to front)
-    setViewedGameIds(prev => {
-      const filtered = prev.filter(id => id !== gameId);
-      return [gameId, ...filtered].slice(0, 10); // keep top 10
+  // Lưu danh sách game đã mua vào state + localStorage
+  const addToPurchased = (items) => {
+    setPurchasedGames((prev) => {
+      const existing = new Set(prev.map((g) => g.id));
+      const newItems = items.filter((g) => !existing.has(g.id));
+      const updated = [...prev, ...newItems];
+      savePurchased(updated);
+      return updated;
     });
+  };
 
-    // 2. Update view history details
-    setViewHistory(prev => {
-      const filtered = prev.filter(h => h.gameId !== gameId);
-      return [
-        { gameId, viewedAt: new Date().toISOString() },
-        ...filtered
-      ].slice(0, 10);
+  // Toggle game khỏi profile gợi ý (không xóa khỏi thư viện)
+  const toggleProfileExclude = (gameId) => {
+    setProfileExcluded((prev) => {
+      const next = new Set(prev);
+      if (next.has(gameId)) {
+        next.delete(gameId);
+      } else {
+        next.add(gameId);
+      }
+      saveExcluded(next);
+      return next;
     });
-  }, []);
+  };
 
-  // --- Purchase / Checkout operations ---
-  const purchaseCart = useCallback(() => {
-    if (items.length === 0) return;
+  // Reset toàn bộ danh sách game đã mua và khôi phục kho hàng backend
+  const resetPurchased = async () => {
+    try {
+      const gameIds = purchasedGames.map((g) => g.id);
+      if (gameIds.length > 0) {
+        await gameApi.resetPurchases(gameIds);
+      }
+    } catch (err) {
+      console.error('Lỗi khi khôi phục kho hàng backend:', err);
+    }
+    setPurchasedGames([]);
+    savePurchased([]);
+    setProfileExcluded(new Set());
+    saveExcluded(new Set());
+  };
 
-    const newPurchasedIds = items.map(i => i.id);
-    const purchaseDate = new Date().toISOString().split('T')[0];
-
-    // Add purchase records
-    const newRecords = items.map(item => ({
-      gameId: item.id,
-      purchasedAt: purchaseDate,
-      price: item.price
-    }));
-
-    // Update purchased game IDs
-    setPurchasedGameIds(prev => {
-      const combined = [...new Set([...prev, ...newPurchasedIds])];
-      return combined;
-    });
-
-    // Update purchase history list
-    setPurchaseHistory(prev => [...newRecords, ...prev]);
-
-    // Clear cart items
-    clearCart();
-  }, [items, clearCart]);
-
-  const cartCount = items.length;
-  const cartTotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  // Game dùng làm profile = đã mua nhưng chưa bị loại
+  const profileGames = purchasedGames.filter((g) => !profileExcluded.has(g.id));
 
   return (
-    <CartContext.Provider value={{
-      items,
-      addToCart,
-      removeFromCart,
-      clearCart,
-      isInCart,
-      cartCount,
-      cartTotal,
-      purchasedGameIds,
-      viewedGameIds,
-      purchaseHistory,
-      viewHistory,
-      addViewedGame,
-      purchaseCart
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        purchasedGames,
+        profileGames,
+        profileExcluded,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        addToPurchased,
+        toggleProfileExclude,
+        resetPurchased,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
-}
+};
