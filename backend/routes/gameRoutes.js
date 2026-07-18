@@ -163,6 +163,16 @@ router.post('/reset-purchases', async (req, res) => {
       return res.json({ success: true, message: 'Thư viện đã trống.' });
     }
 
+    for (let id of gameIds) {
+      const game = await Game.findOne({ id });
+      if (!game) continue;
+
+      const soldQty = game.sold || 0;
+      await Game.updateOne(
+        { id },
+        { $inc: { stock: soldQty }, $set: { sold: 0 } }
+      );
+    }
 
     res.json({ success: true, message: 'Đã hoàn trả số lượng game vào kho thành công!' });
   } catch (error) {

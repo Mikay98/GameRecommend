@@ -37,7 +37,7 @@ export default function GameCard({ game }) {
               return (
                 <div className="mb-4">
                   <div className="flex justify-between items-baseline mb-1">
-                    <span className="text-[9px] tracking-widest font-display text-[#8B9DB5] uppercase">// TƯƠNG THÍCH AI</span>
+                    <span className="text-[9px] tracking-widest font-display text-[#8B9DB5] uppercase">// TƯƠNG ĐỒNG</span>
                     <span className={`font-display text-base font-bold ${themeTextColor}`}>{score}%</span>
                   </div>
                   <div className="w-full bg-[#1E2F42] h-1 rounded-full overflow-hidden">

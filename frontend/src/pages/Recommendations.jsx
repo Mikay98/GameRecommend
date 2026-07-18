@@ -97,7 +97,7 @@ export default function Recommendations() {
                     Gợi ý riêng cho bạn
                     <span className="text-xs font-display tracking-widest border border-[#FF6B4A]/30
                                      text-[#FF6B4A] bg-[#FF6B4A]/5 px-2 py-1">
-                      AI
+                      CBF
                     </span>
                   </h2>
                   {hasRecommendations && (

@@ -84,7 +84,7 @@ $$\text{Điểm tương thích (\%)} = 50 + \left( \frac{\text{Score} - \text{Sc
 
 *(Trong đó Score<sub>max</sub> và Score<sub>min</sub> là điểm cao nhất và thấp nhất trong tập kết quả lọc).*
 
-3. **Thuật toán giải thích (Explainable AI)**: Đối chiếu ngược lại để hiển thị cho người dùng biết game này khớp ở điểm nào (ví dụ: trùng tags gì, trùng nhà phát triển nào...).
+3. **Thuật toán giải thích (Explainable)**: Đối chiếu ngược lại để hiển thị cho người dùng biết game này khớp ở điểm nào (ví dụ: trùng tags gì, trùng nhà phát triển nào...).
 
 ---
 

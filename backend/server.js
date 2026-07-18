@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
+const connectDB = require('./config/db');
 const gameRoutes = require('./routes/gameRoutes');
 
 const app = express();
@@ -14,10 +14,8 @@ app.get('/', (req, res) => {
   res.send('🚀 Chào mừng bạn đến với Game Store Backend API Demo!');
 });
 
-// Kết nối cơ sở dữ liệu MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Đã kết nối cơ sở dữ liệu MongoDB thành công.'))
-  .catch((err) => console.error('❌ Lỗi kết nối cơ sở dữ liệu:', err));
+// Kết nối cơ sở dữ liệu MongoDB (sử dụng connectDB để khắc phục DNS trên Windows)
+connectDB();
 
 app.use('/api/games', gameRoutes);
 
