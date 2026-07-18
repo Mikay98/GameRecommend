@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 # Unrelated files
 .codegraph/
 data/
+data.json
