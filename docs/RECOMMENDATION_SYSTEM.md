@@ -35,7 +35,7 @@ graph TD
 
 ## 🧮 3. Thuật toán chi tiết
 
-Thuật toán gợi ý được cài đặt hoàn chỉnh trong file [useRecommendations.js](frontend/src/hooks/useRecommendations.js).
+Thuật toán gợi ý được cài đặt hoàn chỉnh trong file [useRecommendations.js](../frontend/src/hooks/useRecommendations.js).
 
 ### Bước 3.1: Xây dựng Vector Đặc trưng có Trọng số (Weighted Feature Vector)
 
@@ -91,10 +91,10 @@ $$\text{Điểm tương thích (\%)} = 50 + \left( \frac{\text{Score} - \text{Sc
 ## 📂 4. Cấu trúc mã nguồn liên quan
 
 Các file trực tiếp tham gia vận hành hệ thống gợi ý:
-1. **Lớp xử lý thuật toán chính**: [useRecommendations.js](frontend/src/hooks/useRecommendations.js)
+1. **Lớp xử lý thuật toán chính**: [useRecommendations.js](../frontend/src/hooks/useRecommendations.js)
    - Hàm `getSimilarGames`: Gợi ý game tương tự trên trang chi tiết game.
    - Hàm `getPersonalizedRecommendations`: Gợi ý cá nhân hóa dựa trên lịch sử mua.
-2. **Quản lý dữ liệu người dùng**: [CartProvider.jsx](frontend/src/context/CartProvider.jsx)
+2. **Quản lý dữ liệu người dùng**: [CartProvider.jsx](../frontend/src/context/CartProvider.jsx)
    - Lưu trữ danh sách game đã mua và các game người dùng muốn loại trừ khỏi danh sách gợi ý (`profileExcluded`).
-3. **Trang hiển thị gợi ý**: [Recommendations.jsx](frontend/src/pages/Recommendations.jsx)
+3. **Trang hiển thị gợi ý**: [Recommendations.jsx](../frontend/src/pages/Recommendations.jsx)
    - Giao diện trực quan hiển thị danh sách game được gợi ý theo độ tương thích phần trăm giảm dần, phân nhóm theo thể loại chính, và cung cấp nút ẩn/hiện game khỏi profile sở thích.
